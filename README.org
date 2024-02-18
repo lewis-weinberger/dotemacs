@@ -124,17 +124,37 @@ comes built-in with Emacs and can pull packages from both ~(GNU) Elpa~ and
   (package-initialize)
 #+end_src
 
-First we start with some packages to improve the general editing experience:
+First we start with some packages to improve the general editing experience. In
+particular we use ~evil~ for vi(m)-like modal editing:
 
 #+begin_src emacs-lisp
   (require 'use-package)
 
-  ;; Sacrifice comma for a modifier-free editing experience
-  (use-package devil
-    :demand t
-    :bind ("C-," . global-devil-mode)
-    :config (global-devil-mode))
+  (defun lw/evil-insert-from-visual ()
+    "Enter insert mode from visual mode."
+    (interactive)
+    (when (evil-visual-state-p) (evil-exit-visual-state))
+    (evil-insert 1))
 
+  ;; vi-keys just for programming
+  (use-package evil
+    :demand t
+    :custom
+    (evil-default-state 'emacs)
+    (evil-default-cursor 'bar)
+    :config
+    (define-key evil-visual-state-map "i" 'lw/evil-insert-from-visual)
+    (evil-set-undo-system 'undo-redo)
+    (evil-set-initial-state 'prog-mode 'normal)
+    ;; the cursors need to be set after initialisation
+    (setq evil-normal-state-cursor 'box)
+    (setq evil-visual-state-cursor 'box)
+    (evil-mode 1))
+#+end_src
+
+Some further improvements to the editing experience:
+
+#+begin_src emacs-lisp
   ;; Add ability to use more than one cursor
   (use-package multiple-cursors
     :bind

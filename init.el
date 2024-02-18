@@ -72,11 +72,26 @@
 
 (require 'use-package)
 
-;; Sacrifice comma for a modifier-free editing experience
-(use-package devil
+(defun lw/evil-insert-from-visual ()
+  "Enter insert mode from visual mode."
+  (interactive)
+  (when (evil-visual-state-p) (evil-exit-visual-state))
+  (evil-insert 1))
+
+;; vi-keys just for programming
+(use-package evil
   :demand t
-  :bind ("C-," . global-devil-mode)
-  :config (global-devil-mode))
+  :custom
+  (evil-default-state 'emacs)
+  (evil-default-cursor 'bar)
+  :config
+  (define-key evil-visual-state-map "i" 'lw/evil-insert-from-visual)
+  (evil-set-undo-system 'undo-redo)
+  (evil-set-initial-state 'prog-mode 'normal)
+  ;; the cursors need to be set after initialisation
+  (setq evil-normal-state-cursor 'box)
+  (setq evil-visual-state-cursor 'box)
+  (evil-mode 1))
 
 ;; Add ability to use more than one cursor
 (use-package multiple-cursors
